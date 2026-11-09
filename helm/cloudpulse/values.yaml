@@ -1,0 +1,28 @@
+# Default values for cloudpulse.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/872000/cloudpulse
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+config:
+  intervalSeconds: 30
+  timeoutSeconds: 5
+  historySize: 100
+  targets:
+    - name: example
+      url: https://example.com
+      expected_status: 200
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi

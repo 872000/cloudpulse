@@ -1,0 +1,18 @@
+# CloudPulse default configuration.
+# Copy this file and edit the targets list for your own services.
+# interval_seconds: how often each target is checked.
+# timeout_seconds: per-request timeout (a target may override it).
+# expected_status: HTTP status that counts as "up" (default 200).
+
+interval_seconds: 30
+timeout_seconds: 5
+host: 0.0.0.0
+port: 8080
+history_size: 100
+targets:
+  - name: example
+    url: https://example.com
+    expected_status: 200
+  - name: httpbin
+    url: https://httpbin.org/status/200
+    expected_status: 200

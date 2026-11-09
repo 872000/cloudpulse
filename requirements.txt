@@ -1,0 +1,2 @@
+# CloudPulse has no third-party dependencies.
+# The service and its tests run on the Python 3.11+ standard library only.

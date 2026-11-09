@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudpulse
+  labels:
+    app: cloudpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudpulse
+  template:
+    metadata:
+      labels:
+        app: cloudpulse
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cloudpulse
+          image: ghcr.io/872000/cloudpulse:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          args: ["--config", "/etc/cloudpulse/config.yaml"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: config
+              mountPath: /etc/cloudpulse
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: cloudpulse-config
