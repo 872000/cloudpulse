@@ -29,6 +29,10 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_response(418)
             self.end_headers()
             self.wfile.write(b"teapot")
+        elif self.path == "/large":
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"x" * 200_000)
 
     def do_HEAD(self):
         self.do_GET()
@@ -84,6 +88,15 @@ class CheckerTests(unittest.TestCase):
         self.assertFalse(result.up)
         self.assertIsNone(result.status_code)
         self.assertIsNotNone(result.error)
+
+    def test_large_body_is_still_up(self):
+        # The probe drains only a bounded slice, so a large body must
+        # neither blow up the check nor mark the target down.
+        result = check_target(
+            Target(name="big", url=self.url("/large")), timeout=5
+        )
+        self.assertTrue(result.up)
+        self.assertEqual(result.status_code, 200)
 
     def test_head_method(self):
         result = check_target(

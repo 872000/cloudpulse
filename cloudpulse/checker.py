@@ -37,8 +37,9 @@ def check_target(target: Target, timeout: float) -> CheckResult:
     try:
         with urllib.request.urlopen(request, timeout=effective_timeout) as resp:
             status = resp.status
-            # Read (and discard) the body so latency reflects a full fetch.
-            resp.read(1)
+            # Drain a bounded slice of the body so the recorded latency
+            # reflects a real fetch, without buffering an unbounded reply.
+            resp.read(65536)
     except urllib.error.HTTPError as exc:
         # HTTPError still carries a real status code: up only if it matches.
         latency_ms = (time.monotonic() - started) * 1000.0
